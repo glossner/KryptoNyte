@@ -25,6 +25,9 @@
             ]
         }
     },
-    "postCreateCommand": "chmod +x .devcontainer/install_base_rtl_tools.sh && bash .devcontainer/install_base_rtl_tools.sh"
+    "postCreateCommand": ["chmod +x .devcontainer/install_base_rtl_tools.sh",
+            "bash", "-c", 
+            "echo 'Starting postCreate... See log at /workspace/postcreate.log' && .devcontainer/install_base_rtl_tools.sh 2>&1 | tee /workspace/postcreate.log && echo 'PostCreate completed. Log: /workspace/postcreate.log'"
+            ]
 }
   
