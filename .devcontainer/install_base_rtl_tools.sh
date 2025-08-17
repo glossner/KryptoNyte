@@ -251,29 +251,59 @@ print_banner "INSTALLING FIRRTL TOOLS (FIRTOOL)" "$PURPLE"
 
 print_step "Fetching latest FIRRTL tools release"
 FIRTOOL_URL=$(curl -s https://api.github.com/repos/llvm/circt/releases/latest | \
-    jq -r '.assets[] | select(.name == "firrtl-bin-linux-x64.tar.gz") | .browser_download_url') || {
+    jq -r '.assets[] | select(.name == "firrtl-bin-linux-x64.tar.gz") | .browser_download_url')
+
+if [ -z "$FIRTOOL_URL" ] || [ "$FIRTOOL_URL" = "null" ]; then
     print_error "Failed to fetch FIRRTL tools release information"
     exit 1
-}
+fi
 
 print_step "Downloading FIRRTL tools"
-wget --no-check-certificate "$FIRTOOL_URL" -O /tmp/firtool.tar.gz || {
+if ! wget --no-check-certificate "$FIRTOOL_URL" -O /tmp/firtool.tar.gz; then
     print_error "Failed to download FIRRTL tools"
     exit 1
-}
+fi
+
+print_step "Extracting FIRRTL tools"
+mkdir -p /tmp/firtool
+if ! tar -xzf /tmp/firtool.tar.gz -C /tmp/firtool; then
+    print_error "Failed to extract FIRRTL tools archive"
+    rm -rf /tmp/firtool /tmp/firtool.tar.gz
+    exit 1
+fi
+
+print_step "Locating firtool binary"
+FIRTOOL_PATH=$(find /tmp/firtool -type f -name firtool -executable 2>/dev/null | head -1)
+
+if [ -z "$FIRTOOL_PATH" ]; then
+    print_error "firtool binary not found in extracted archive"
+    print_step "Archive contents:"
+    find /tmp/firtool -type f -name "*firtool*" 2>/dev/null || echo "No firtool files found"
+    rm -rf /tmp/firtool /tmp/firtool.tar.gz
+    exit 1
+fi
 
 print_step "Installing firtool to /usr/local/bin"
-mkdir -p /tmp/firtool && \
-tar -xzf /tmp/firtool.tar.gz -C /tmp/firtool && \
-find /tmp/firtool -type f -name firtool -exec run_cmd mv {} /usr/local/bin/ \; && \
-run_cmd chmod +x /usr/local/bin/firtool && \
-rm -rf /tmp/firtool /tmp/firtool.tar.gz || {
-    print_error "Failed to install firtool"
+if run_cmd mv "$FIRTOOL_PATH" /usr/local/bin/firtool; then
+    run_cmd chmod +x /usr/local/bin/firtool
+    print_success "FIRRTL tools (firtool) installed"
+else
+    print_error "Failed to install firtool to /usr/local/bin"
+    rm -rf /tmp/firtool /tmp/firtool.tar.gz
     exit 1
-}
+fi
 
-print_success "FIRRTL tools (firtool) installed"
-firtool --version | head -1
+# Cleanup
+rm -rf /tmp/firtool /tmp/firtool.tar.gz
+
+# Verify installation
+if command -v firtool >/dev/null 2>&1; then
+    firtool --version | head -1
+else
+    print_error "firtool installation verification failed"
+    exit 1
+fi
+
 
 #######################################
 # Install OSS-CAD Suite
