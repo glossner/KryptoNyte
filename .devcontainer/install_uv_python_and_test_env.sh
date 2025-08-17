@@ -235,6 +235,35 @@ run_cmd apt install -y "${DEPENDENCIES[@]}" || {
 run_cmd apt clean
 print_success "All dependencies installed"
 
+########################################
+# Check if RISC-V toolchain is available
+########################################
+print_step "Checking for RISC-V cross-compiler"
+if command -v riscv64-unknown-elf-gcc >/dev/null 2>&1; then
+    print_success "RISC-V cross-compiler found"
+    RISCV_TOOLCHAIN_AVAILABLE=true
+    
+    # Show toolchain info
+    RISCV_GCC_VERSION=$(riscv64-unknown-elf-gcc --version 2>/dev/null | head -1)
+    echo "  Using: $RISCV_GCC_VERSION"
+    
+elif command -v riscv32-unknown-elf-gcc >/dev/null 2>&1; then
+    print_success "RISC-V cross-compiler found (32-bit)"
+    RISCV_TOOLCHAIN_AVAILABLE=true
+    RISCV_PREFIX="riscv32-unknown-elf"
+    
+    # Show toolchain info
+    RISCV_GCC_VERSION=$(riscv32-unknown-elf-gcc --version 2>/dev/null | head -1)
+    echo "  Using: $RISCV_GCC_VERSION"
+    
+else
+    print_warning "RISC-V cross-compiler not found"
+    print_warning "Proxy Kernel requires RISC-V toolchain to build"
+    RISCV_TOOLCHAIN_AVAILABLE=false
+fi
+
+
+
 #######################################
 # Create Installation Directory
 #######################################
@@ -307,58 +336,105 @@ run_cmd make install || {
 
 print_success "Spike RISC-V ISA Simulator installed successfully"
 
+
 #######################################
-# Install Proxy Kernel (pk)
+# Install Proxy Kernel (pk) 
 #######################################
 print_banner "INSTALLING RISC-V PROXY KERNEL (PK)" "$YELLOW"
 
-cd "$SPIKE_BUILD_DIR" || {
-    print_error "Failed to change to build directory: $SPIKE_BUILD_DIR"
-    exit 1
-}
 
-print_step "Cloning RISC-V Proxy Kernel repository"
-if [ -d "riscv-pk" ]; then
-    print_warning "Proxy Kernel repository already exists, updating..."
-    cd riscv-pk
-    git pull origin master || {
-        print_error "Failed to update Proxy Kernel repository"
+if [ "$RISCV_TOOLCHAIN_AVAILABLE" = true ]; then
+    # Proceed with Proxy Kernel installation
+    cd "$SPIKE_BUILD_DIR" || {
+        print_error "Failed to change to build directory: $SPIKE_BUILD_DIR"
         exit 1
     }
-    cd ..
+
+    print_step "Cloning RISC-V Proxy Kernel repository"
+    if [ -d "riscv-pk" ]; then
+        print_warning "Proxy Kernel repository already exists, updating..."
+        cd riscv-pk
+        git pull origin master || {
+            print_error "Failed to update Proxy Kernel repository"
+            exit 1
+        }
+        cd ..
+    else
+        git clone https://github.com/riscv/riscv-pk.git || {
+            print_error "Failed to clone Proxy Kernel repository"
+            exit 1
+        }
+    fi
+
+    print_step "Creating Proxy Kernel build directory"
+    mkdir -p riscv-pk/build
+    cd riscv-pk/build || {
+        print_error "Failed to enter Proxy Kernel build directory"
+        exit 1
+    }
+
+    print_step "Configuring Proxy Kernel build with RISC-V toolchain"
+    
+    # Set cross-compiler environment variables
+    export CC=${RISCV_PREFIX:-riscv64-unknown-elf}-gcc
+    export CXX=${RISCV_PREFIX:-riscv64-unknown-elf}-g++
+    export AR=${RISCV_PREFIX:-riscv64-unknown-elf}-ar
+    export RANLIB=${RISCV_PREFIX:-riscv64-unknown-elf}-ranlib
+    export STRIP=${RISCV_PREFIX:-riscv64-unknown-elf}-strip
+    
+    # Configure with explicit cross-compiler specification
+    ../configure --prefix="$SPIKE_PREFIX" \
+                 --host=${RISCV_PREFIX:-riscv64-unknown-elf} \
+                 CC="$CC" \
+                 CXX="$CXX" \
+                 AR="$AR" \
+                 RANLIB="$RANLIB" \
+                 STRIP="$STRIP" || {
+        print_error "Failed to configure Proxy Kernel build"
+        print_error "This may indicate an issue with the RISC-V toolchain"
+        exit 1
+    }
+
+    print_step "Building Proxy Kernel (using $PARALLEL_JOBS parallel jobs)"
+    make -j"$PARALLEL_JOBS" || {
+        print_error "Failed to build Proxy Kernel"
+        print_error "Check that RISC-V toolchain is properly installed"
+        exit 1
+    }
+
+    print_step "Installing Proxy Kernel"
+    run_cmd make install || {
+        print_error "Failed to install Proxy Kernel"
+        exit 1
+    }
+
+    print_success "RISC-V Proxy Kernel installed successfully"
+    
+    # Verify installation
+    if [ -f "$SPIKE_PREFIX/${RISCV_PREFIX:-riscv64-unknown-elf}/bin/pk" ]; then
+        print_success "Proxy Kernel (pk) binary found at $SPIKE_PREFIX/${RISCV_PREFIX:-riscv64-unknown-elf}/bin/pk"
+    else
+        print_warning "Proxy Kernel binary not found in expected location"
+    fi
+    
 else
-    git clone https://github.com/riscv/riscv-pk.git || {
-        print_error "Failed to clone Proxy Kernel repository"
-        exit 1
-    }
+    # Skip Proxy Kernel installation
+    print_warning "Skipping Proxy Kernel installation"
+    echo ""
+    echo "To install Proxy Kernel later:"
+    echo "  1. Install RISC-V toolchain (e.g., from riscv-collab releases)"
+    echo "  2. Re-run this script or build Proxy Kernel manually"
+    echo ""
+    echo "Spike simulator will still work for:"
+    echo "  - Running pre-compiled RISC-V binaries"
+    echo "  - Using other proxy kernels or bare-metal programs"
+    echo ""
 fi
 
-print_step "Creating Proxy Kernel build directory"
-mkdir -p riscv-pk/build
-cd riscv-pk/build || {
-    print_error "Failed to enter Proxy Kernel build directory"
-    exit 1
-}
+# Reset environment variables to avoid affecting other builds
+unset CC CXX AR RANLIB STRIP
 
-print_step "Configuring Proxy Kernel build"
-../configure --prefix="$SPIKE_PREFIX" --host=riscv64-unknown-elf || {
-    print_error "Failed to configure Proxy Kernel build"
-    exit 1
-}
 
-print_step "Building Proxy Kernel (using $PARALLEL_JOBS parallel jobs)"
-make -j"$PARALLEL_JOBS" || {
-    print_error "Failed to build Proxy Kernel"
-    exit 1
-}
-
-print_step "Installing Proxy Kernel"
-run_cmd make install || {
-    print_error "Failed to install Proxy Kernel"
-    exit 1
-}
-
-print_success "RISC-V Proxy Kernel installed successfully"
 
 #######################################
 # Update PATH
