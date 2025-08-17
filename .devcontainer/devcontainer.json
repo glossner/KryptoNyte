@@ -25,6 +25,6 @@
             ]
         }
     },
-    "postCreateCommand": "chmod +x .devcontainer/setup.sh && bash .devcontainer/setup.sh"
+    "postCreateCommand": "chmod +x .devcontainer/install_base_rtl_tools.sh && bash .devcontainer/install_base_rtl_tools.sh"
 }
   
