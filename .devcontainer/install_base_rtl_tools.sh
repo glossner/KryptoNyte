@@ -174,6 +174,32 @@ fi
 EOF
 
 #######################################
+# Setup Package Management 
+#######################################
+print_banner "CONFIGURING PACKAGE MANAGEMENT" "$CYAN"
+
+# Set non-interactive mode to prevent prompts and warnings
+export DEBIAN_FRONTEND=noninteractive
+export DEBCONF_NONINTERACTIVE_SEEN=true
+
+print_step "Updating package lists"
+run_cmd apt update || {
+    print_error "Failed to update package lists"
+    exit 1
+}
+
+print_step "Installing apt-utils to prevent debconf warnings"
+run_cmd apt install -y apt-utils || {
+    print_warning "Failed to install apt-utils (continuing anyway)"
+}
+
+print_step "Cleaning package cache"
+run_cmd apt clean
+
+print_success "Package management configured"
+
+
+#######################################
 # Install GCC 14
 #######################################
 print_banner "INSTALLING GCC 14 COMPILER" "$BLUE"
@@ -367,35 +393,65 @@ node --version
 npm --version
 
 #######################################
-# Install sv2v
+# Install sv2v 
 #######################################
 print_banner "INSTALLING SV2V SYSTEMVERILOG CONVERTER" "$BLUE"
 
 print_step "Fetching latest sv2v release"
 SV2V_URL=$(curl -s https://api.github.com/repos/zachjs/sv2v/releases/latest | \
-    jq -r '.assets[] | select(.name == "sv2v-Linux.zip") | .browser_download_url') || {
+    jq -r '.assets[] | select(.name == "sv2v-Linux.zip") | .browser_download_url')
+
+if [ -z "$SV2V_URL" ] || [ "$SV2V_URL" = "null" ]; then
     print_error "Failed to fetch sv2v release information"
     exit 1
-}
+fi
 
 print_step "Downloading sv2v"
-wget "$SV2V_URL" -O /tmp/sv2v.zip || {
+if ! wget "$SV2V_URL" -O /tmp/sv2v.zip; then
     print_error "Failed to download sv2v"
     exit 1
-}
+fi
+
+print_step "Extracting sv2v"
+mkdir -p /tmp/sv2v
+if ! unzip /tmp/sv2v.zip -d /tmp/sv2v; then
+    print_error "Failed to extract sv2v archive"
+    rm -rf /tmp/sv2v /tmp/sv2v.zip
+    exit 1
+fi
+
+print_step "Locating sv2v binary"
+SV2V_PATH=$(find /tmp/sv2v -type f -name sv2v -executable 2>/dev/null | head -1)
+
+if [ -z "$SV2V_PATH" ]; then
+    print_error "sv2v binary not found in extracted archive"
+    print_step "Archive contents:"
+    find /tmp/sv2v -type f -name "*sv2v*" 2>/dev/null || echo "No sv2v files found"
+    rm -rf /tmp/sv2v /tmp/sv2v.zip
+    exit 1
+fi
 
 print_step "Installing sv2v to /usr/local/bin"
-mkdir -p /tmp/sv2v && \
-unzip /tmp/sv2v.zip -d /tmp/sv2v && \
-find /tmp/sv2v -type f -name sv2v -exec run_cmd mv {} /usr/local/bin/ \; && \
-run_cmd chmod +x /usr/local/bin/sv2v && \
-rm -rf /tmp/sv2v /tmp/sv2v.zip || {
-    print_error "Failed to install sv2v"
+if run_cmd mv "$SV2V_PATH" /usr/local/bin/sv2v; then
+    run_cmd chmod +x /usr/local/bin/sv2v
+    print_success "sv2v installed"
+else
+    print_error "Failed to install sv2v to /usr/local/bin"
+    rm -rf /tmp/sv2v /tmp/sv2v.zip
     exit 1
-}
+fi
 
-print_success "sv2v installed"
-sv2v --version
+# Cleanup
+rm -rf /tmp/sv2v /tmp/sv2v.zip
+
+# Verify installation
+if command -v sv2v >/dev/null 2>&1; then
+    sv2v --version
+else
+    print_error "sv2v installation verification failed"
+    exit 1
+fi
+
 
 #######################################
 # Install Graphics Tools
@@ -463,4 +519,7 @@ echo "  3. Begin developing your KryptoNyte processor cores!"
 
 echo ""
 print_success "All tools successfully installed and configured!"
+
+unset DEBIAN_FRONTEND
+unset DEBCONF_NONINTERACTIVE_SEEN
 
