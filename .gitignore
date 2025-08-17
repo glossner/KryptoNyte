@@ -1,5 +1,458 @@
-*.class
-*.log
+#==============================================================================
+# Generated Verilog and Build Artifacts
+#==============================================================================
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+# Chisel generated Verilog (build artifacts, not source)
+**/generated/
+**/target/
+**/project/target/
+**/project/project/
+
+# Generated Verilog files
+**/*.v
+**/*.sv
+!**/shared/rtl/**/*.sv
+!**/shared/include/**/*.sv
+!**/shared/packages/**/*.sv
+!**/verification/**/*.sv
+
+# FIRRTL intermediate files
+**/*.fir
+**/*.anno.json
+**/firrtl_black_box_resource_files.f
+
+# Chisel/Scala build artifacts
+**/project/metals.sbt
+**/.bloop/
+**/.metals/
+**/metals.sbt
+**/.cache
+**/.history
+**/.lib/
+**/dist/
+**/lib_managed/
+**/src_managed/
+**/project/
+**/plugins.sbt
+**/build.properties
+**/sbt.json
+
+#==============================================================================
+# Simulation and Verification
+#==============================================================================
+
+# Verilator build directories
+**/obj_dir/
+**/simv*
+**/csrc/
+**/ucli.key
+
+# VCS simulation artifacts
+**/simv
+**/simv.daidir/
+**/csrc/
+**/64/
+**/AN.DB/
+**/*.vpd
+**/*.vcd
+**/*.fsdb
+**/*.shm/
+**/*.trn
+**/*.dsn
+
+# Questa/ModelSim artifacts
+**/work/
+**/transcript
+**/vsim.wlf
+**/wlf*
+**/*.wlf
+**/*.vstf
+**/*.qdx
+
+# Xcelium artifacts
+**/xcelium.d/
+**/xmsim.key
+**/waves.shm/
+**/cov_work/
+
+# Waveform dumps
+**/waves/
+**/logs/
+**/*.vcd
+**/*.vpd
+**/*.fsdb
+**/*.ghw
+
+# Coverage databases
+**/coverage.dat
+**/cov_work/
+**/urgReport/
+**/simprofile_dir/
+
+# Test results and reports
+**/test_results/
+**/regression_results/
+**/coverage_reports/
+**/formal_results/
+
+#==============================================================================
+# Physical Design and Synthesis
+#==============================================================================
+
+# Synthesis outputs
+**/syn/
+**/synthesis/results/
+**/synthesis/reports/
+**/synthesis/logs/
+**/*.ddc
+**/*.db
+**/*.lib
+**/*.sdf
+**/*.spef
+**/*.sdc
+
+# Place and Route outputs
+**/pnr/
+**/place_route/results/
+**/place_route/reports/
+**/place_route/logs/
+**/*.def
+**/*.lef
+**/*.gds
+**/*.oas
+**/*.mag
+
+# Timing analysis
+**/*.sta
+**/*.timing
+**/*.slack
+
+# Power analysis
+**/*.pwr
+**/*.power
+
+# Physical verification
+**/drc/
+**/lvs/
+**/antenna/
+**/density/
+
+# OpenLane/OpenROAD artifacts
+**/runs/
+**/openlane.log
+**/config.tcl.bak
+
+#==============================================================================
+# Documentation Build Artifacts
+#==============================================================================
+
+# Generated documentation
+**/docs/_build/
+**/docs/build/
+**/_site/
+**/site/
+
+# LaTeX artifacts
+**/*.aux
+**/*.bbl
+**/*.blg
+**/*.fdb_latexmk
+**/*.fls
+**/*.log
+**/*.out
+**/*.synctex.gz
+**/*.toc
+**/*.pdf
+
+# Markdown processors
+**/.jekyll-cache/
+**/.sass-cache/
+
+#==============================================================================
+# Development Environment
+#==============================================================================
+
+# IDE and editor files
+**/.vscode/
+**/.idea/
+**/nbproject/
+**/*.swp
+**/*.swo
+**/*~
+**/.DS_Store
+**/Thumbs.db
+
+# Vim
+**/*.swp
+**/*.swo
+**/*.un~
+
+# Emacs
+**/*~
+**/#*#
+**/.#*
+
+# Sublime Text
+**/*.sublime-workspace
+**/*.sublime-project
+
+# IntelliJ IDEA
+**/.idea/
+**/*.iml
+**/*.iws
+
+# Eclipse
+**/.project
+**/.classpath
+**/.settings/
+
+# Metals (Scala Language Server)
+**/.metals/
+**/.bloop/
+**/project/.bloop/
+
+#==============================================================================
+# Build Systems and Package Managers
+#==============================================================================
+
+# SBT
+**/target/
+**/project/target/
+**/project/project/target/
+**/.sbt/
+
+# Maven
+**/pom.xml.tag
+**/pom.xml.releaseBackup
+**/pom.xml.versionsBackup
+**/pom.xml.next
+**/release.properties
+**/dependency-reduced-pom.xml
+**/buildNumber.properties
+**/.mvn/timing.properties
+**/.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+**/.gradle/
+**/build/
+**/gradle-app.setting
+**/.gradletasknamecache
+
+# Node.js (for documentation tools)
+**/node_modules/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/.npm
+**/.yarn-integrity
+**/.pnp.*
+
+# Python (for scripts and tools)
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/*.so
+**/.Python
+**/build/
+**/develop-eggs/
+**/dist/
+**/downloads/
+**/eggs/
+**/.eggs/
+**/lib/
+**/lib64/
+**/parts/
+**/sdist/
+**/var/
+**/wheels/
+**/*.egg-info/
+**/.installed.cfg
+**/*.egg
+**/MANIFEST
+
+# Virtual environments
+**/venv/
+**/ENV/
+**/env/
+**/.venv/
+
+#==============================================================================
+# Operating System
+#==============================================================================
+
+# macOS
+**/.DS_Store
+**/.AppleDouble
+**/.LSOverride
+**/Icon
+**/.Spotlight-V100
+**/.Trashes
+**/.fseventsd
+**/.VolumeIcon.icns
+**/.com.apple.timemachine.donotpresent
+
+# Windows
+**/Thumbs.db
+**/ehthumbs.db
+**/Desktop.ini
+**/$RECYCLE.BIN/
+**/*.cab
+**/*.msi
+**/*.msm
+**/*.msp
+**/*.lnk
+
+# Linux
+**/*~
+**/.fuse_hidden*
+**/.directory
+**/.Trash-*
+**/.nfs*
+
+#==============================================================================
+# Temporary and Cache Files
+#==============================================================================
+
+# General temporary files
+**/tmp/
+**/temp/
+**/.tmp/
+**/.cache/
+**/cache/
+
+# Log files
+**/*.log
+**/logs/
+**/.log
+
+# Backup files
+**/*.bak
+**/*.backup
+**/*.old
+**/*.orig
+**/*.save
+
+# Lock files
+**/*.lock
+**/.lock-*
+
+#==============================================================================
+# Security and Credentials
+#==============================================================================
+
+# API keys and secrets
+**/.env
+**/.env.local
+**/.env.*.local
+**/secrets.json
+**/credentials.json
+**/*_key
+**/*_secret
+**/*.pem
+**/*.key
+**/*.crt
+**/*.p12
+
+# SSH keys
+**/id_rsa
+**/id_dsa
+**/id_ecdsa
+**/id_ed25519
+
+#==============================================================================
+# FlowNyte Family Specific
+#==============================================================================
+
+# Core-specific build artifacts
+**/cores/**/target/
+**/cores/**/generated/
+**/cores/**/obj_dir/
+
+# Family-wide test results
+**/verification/results/
+**/verification/coverage/reports/
+**/verification/regression/results/
+
+# Performance analysis outputs
+**/performance_results/
+**/benchmark_results/
+**/comparison_results/
+
+# Configuration backups
+**/*.config.bak
+**/configs/*.bak
+
+# Tool-generated files
+**/tool_outputs/
+**/analysis_results/
+**/reports/
+
+#==============================================================================
+# Submodules (Keep tracked but ignore their artifacts)
+#==============================================================================
+
+# Don't ignore submodule directories themselves
+!/tools/riscv-toolchain/
+!/tools/riscv-spike/
+!/physical-design/pdks/skywater-pdk/
+
+# But ignore build artifacts within submodules
+/tools/riscv-toolchain/build/
+/tools/riscv-toolchain/install/
+/tools/riscv-spike/build/
+/tools/riscv-spike/install/
+
+#==============================================================================
+# Keep Important Files (Negative Patterns)
+#==============================================================================
+
+# Keep hand-written SystemVerilog testbenches and verification code
+!**/verification/**/*.sv
+!**/testbenches/**/*.sv
+!**/properties/**/*.sv
+!**/agents/**/*.sv
+!**/monitors/**/*.sv
+!**/checkers/**/*.sv
+
+# Keep shared RTL and packages (hand-written)
+!**/shared/rtl/**/*.sv
+!**/shared/include/**/*.sv
+!**/shared/packages/**/*.sv
+
+# Keep constraint files
+!**/*.sdc
+!**/*.xdc
+!**/*.ucf
+
+# Keep configuration files
+!**/*.json
+!**/*.yaml
+!**/*.yml
+!**/*.toml
+!**/*.cfg
+!**/*.conf
+
+# Keep documentation source
+!**/*.md
+!**/*.rst
+!**/*.tex
+
+# Keep scripts
+!**/*.sh
+!**/*.py
+!**/*.pl
+!**/*.tcl
+!**/*.do
+
+# Keep Makefiles and build configs
+!**/Makefile
+!**/makefile
+!**/build.sbt
+!**/build.sc
+!**/CMakeLists.txt
+
+#==============================================================================
+# End of FlowNyte .gitignore
+#==============================================================================
+
+
