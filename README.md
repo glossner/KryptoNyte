@@ -9,6 +9,28 @@ The KryptoNyte family is a comprehensive collection of RISC-V processor implemen
 
 All processor cores are implemented in Chisel and generate Verilog for synthesis and simulation. The repository follows a monorepo approach with shared components and comprehensive verification infrastructure.
 
+# Installation
+
+## Github Codespace
+
+Create a normal github codespace. By default, the standard RTL design tools are included.
+
+## Options
+
+1. RISCV Compiler Toolchain: .devcontainer/install_riscv_compiler_tools.sh
+2. Conformance Tests: .devcontainer/install_uv_python_and_test_enf.sh
+   1. Installs uv
+   2. Installs spike and pk
+   3. (TBD) installs the conformance tests
+
+## Ubuntu 24.04
+
+1. Base RTL Tools: .devcontainer/install_base_rtl_tools.sh --with-sudo
+2. RISCV Compiler Toolchain: .devcontainer/install_riscv_compiler_tools.sh --with-sudo
+3. Conformance Tests: .devcontainer/install_uv_python_and_test_enf.sh --with-sudo
+
+
+
 # KryptoNyte Directory Tree
 
 ## First Level
