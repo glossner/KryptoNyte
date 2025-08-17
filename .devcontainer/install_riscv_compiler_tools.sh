@@ -145,12 +145,12 @@ echo "Cleaning up temporary files..."
 rm -f riscv32-elf-ubuntu-24.04-gcc-nightly-${RISCV_TOOLS_VERSION}-nightly.tar.xz
 rm -f riscv64-elf-ubuntu-24.04-gcc-nightly-${RISCV_TOOLS_VERSION}-nightly.tar.xz
 
+source ~/.bashrc
+
 echo ""
 echo "Installation complete!"
 echo "Toolchain installed to: ${RISCV_TOOLS_INSTALL_DIR}"
 echo "PATH updated in ~/.bashrc"
 echo ""
-echo "To use the toolchain in new terminals, either:"
-echo "1. Start a new terminal session, or"
-echo "2. Run: source ~/.bashrc"
+
 
