@@ -617,8 +617,8 @@ echo ""
 print_success "All tools successfully installed and configured!"
 
 
-unset DEBIAN_FRONTEND
-unset DEBCONF_NONINTERACTIVE_SEEN
+#unset DEBIAN_FRONTEND
+#unset DEBCONF_NONINTERACTIVE_SEEN
 
 # CRITICAL: Ensure script exits with success code
 exit 0
