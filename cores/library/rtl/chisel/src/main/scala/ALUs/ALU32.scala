@@ -1,7 +1,5 @@
-// Licensed under the BSD 3-Clause License. 
-// See https://opensource.org/licenses/BSD-3-Clause for details.
 
-package ZeroNyte.core
+package ALUs
 
 import chisel3._
 import chisel3.util._

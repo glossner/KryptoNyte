@@ -1,10 +1,12 @@
-package ZeroNyte.core
+package ZeroNyteCore
 
 import chisel3._
 import chisel3.util._
-import ZeroNyte.core.RV32IDecode
+import Decoders.RV32IDecode
+import ALUs.ALU32
 
-class FetchExecute extends Module {
+
+class ZeroNyteCore extends Module {
   val io = IO(new Bundle {
     val pc_out    = Output(UInt(32.W))
     val instr_out = Output(UInt(32.W))

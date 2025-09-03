@@ -1,13 +1,13 @@
-package ZeroNyte.core
+package ZeroNyteCore
 
 import chisel3._
 import chisel3.simulator.EphemeralSimulator._
 import org.scalatest.flatspec.AnyFlatSpec
 
-class FetchExecuteTest extends AnyFlatSpec {
+class ZeroNyteCoreTest extends AnyFlatSpec {
 
-  "FetchExecute" should "fetch and execute instructions correctly" in {
-    simulate(new FetchExecute) { dut =>
+  "ZeroNyteCore" should "fetch and execute instructions correctly" in {
+    simulate(new ZeroNyteCore) { dut =>
       val printDebugInfo = true
       var cycle = 0 // cycle counter
 

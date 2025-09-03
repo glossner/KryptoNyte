@@ -1,9 +1,9 @@
-package ZeroNyte.core
+package ALUs
 
 import chisel3._
 import chisel3.simulator.EphemeralSimulator._
 import org.scalatest.flatspec.AnyFlatSpec
-import ZeroNyte.core.ALU32.Opcode
+import ALUs.ALU32.Opcode
 
 class ALU32Test extends AnyFlatSpec{
   "ALU32" should "correctly compute arithmetic, logical, and shift operations for all opcodes" in {
